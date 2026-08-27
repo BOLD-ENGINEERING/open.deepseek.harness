@@ -1,22 +1,29 @@
-# DeepSeek Harness
+# Open DeepSeek Harness
+
+A custom fork of the [DeepSeek Harness](https://github.com/deepseek-ai/deepseek-harness) containing skills and tools for **contract-based development**.
 
 English | [中文](README.zh.md)
 
-DeepSeek Harness (`dsh`) is an open-source agent harness developed by [DeepSeek AI](https://deepseek.com).
+## About this fork
 
-It is built on an **everything-is-a-plugin** architecture and powered by [Cordis](https://github.com/cordiverse/cordis), whose design is described in [_A Programming Paradigm for Spatiotemporal Composability_](https://arxiv.org/abs/2608.25512).
+This fork builds on DeepSeek Harness's plugin architecture (everything is a plugin, powered by [Cordis](https://github.com/cordiverse/cordis)) and turns the harness toward **contract-based development**: authoring software against explicit, machine-checkable contracts and letting those contracts drive, verify, and gate the work of the agent.
 
-Documentation: [https://deepseek-harness.github.io/deepseek-harness/](https://deepseek-harness.github.io/deepseek-harness/)
+Contract-based development here means:
 
-## Developer preview
+- **Contracts come first.** Before implementation begins, the surface is defined explicitly — type graphs, API and service schemas, tool signatures, and the invariants those surfaces must satisfy — rather than inferred from natural-language instructions.
+- **Skills author and maintain contracts.** The bundled skills capture workflows for drafting, refining, and reviewing contract definitions, and keep contract sources in sync as code evolves.
+- **Tools verify contracts in the loop.** Contract-aware tools inspect generated and written code against the declared surfaces, wire contract checks into the agent loop, and surface violations as actionable failures instead of silent drift.
+- **Gates enforce conformance.** The repo's gate infrastructure is reused so contract conformance is a mechanical check on every change, not a manual review step.
+
+The fork keeps upstream DeepSeek Harness functionality — LLM capabilities, shell, filesystem, subprocess, terminal, web, LSP, skill, workflow, compaction, and per-session agent composition from `cordis.yml` — and layers the contract-first skills and tools on top of that foundation.
 
 DeepSeek Harness is in _developer preview_ and iterating rapidly. **THERE WILL BE COMPATIBILITY-BREAKING CHANGES.**
 
 Review the [safety notice](SAFETY.md) before running the project.
 
-## Run
+Documentation: [https://deepseek-harness.github.io/deepseek-harness/](https://deepseek-harness.github.io/deepseek-harness/)
 
-### Run from `npm`
+## Run
 
 Install `Node.js`, then run:
 
@@ -24,15 +31,13 @@ Install `Node.js`, then run:
 npx @deepseek-ai/dsh web
 ```
 
-The command starts the Web UI at `http://127.0.0.1:3080` by default and opens it in the default browser for a local launch. An SSH launch only prints the host URL because the SSH client or editor owns the local forwarded address. Pass `--no-open` to run the server without opening a browser. See [Web UI guide](docs/user/guide/index.md).
+The command starts the Web UI at `http://127.0.0.1:3080` by default and opens it in the default browser for a local launch. Pass `--no-open` to run the server without opening a browser.
 
-### Run from source
-
-To run from a repository checkout:
+To run from source:
 
 ```sh
-git clone https://github.com/deepseek-ai/deepseek-harness.git
-cd deepseek-harness
+git clone git@github.com:BOLD-ENGINEERING/open.deepseek.harness.git
+cd open.deepseek.harness
 pnpm install
 pnpm run build
 pnpm dsh web
@@ -40,19 +45,9 @@ pnpm dsh web
 
 `pnpm run build` prepares the repository artifacts. `pnpm dsh web` uses those built artifacts without rebuilding.
 
-## Community and support
-
-- Submit feedback or bug reports through [GitHub Discussions](https://github.com/deepseek-ai/deepseek-harness/discussions).
-- Add the [`dsh-plugin`](https://github.com/topics/dsh-plugin) topic to your plugin repository for discoverability.
-- Join <a href="https://discord.gg/Ycq5dCaS4">DeepSeek Harness Discord community</a>.
-
-## Contributing
-
-See [CONTRIBUTING.md](CONTRIBUTING.md).
-
 ## Development
 
-Start with the [development guide](docs/development.md) and [architecture documentation](docs/architecture.md).
+Start with the [development guide](docs/development.md) and [architecture documentation](docs/architecture.md). The upstream [project overview](docs/index.md) and per-folder documentation live under `docs/`.
 
 For agents, follow [AGENTS.md](AGENTS.md).
 

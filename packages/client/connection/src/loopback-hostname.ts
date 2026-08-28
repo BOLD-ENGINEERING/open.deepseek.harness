@@ -10,7 +10,7 @@
  * @returns true for localhost, IPv6 loopback, or any IPv4 address in 127/8.
  */
 export function isLoopbackHostname(hostname: string): boolean {
-  if (hostname === 'localhost' || hostname === '[::1]') return true
+  if (hostname === 'localhost' || hostname === 'harness.localhost' || hostname === '[::1]') return true
   const parts = hostname.split('.')
   return parts.length === 4
     && parts[0] === '127'

@@ -15,9 +15,8 @@ import type {} from '@deepseek-ai/dsh-client-ui-layout/client'
 import type { SessionId } from '@deepseek-ai/dsh-session/types'
 import type { WorkspaceId } from '@deepseek-ai/dsh-workspace/types'
 import type { ComposerBlock } from './composer-blocks.ts'
-import type {
-  ComposerKeyboard, DraftAttachmentId, EditSelection, InputActions, InputNotice, InputState,
-} from './input.ts'
+import type { DraftAttachmentId, InputActions, InputNotice, InputState } from './input.ts'
+import type { ComposerKeyboard, EditSelection } from './draft-editor.ts'
 import type { createConversationStore } from '../stores.ts'
 import type { BusyEnterBehavior } from './composer-submission.ts'
 import type { ConversationSnapshot } from './snapshot.ts'
@@ -117,6 +116,8 @@ export type UseConversationViews = SnapshotSelectorHook<readonly ViewTab[]>
 
 declare module '@deepseek-ai/dsh-client-ui-slots' {
   interface SlotMap {
+    /** Conversation shell beneath its root-scoped main-panel entry. */
+    'main.conversation': { kind: 'single'; scope: 'session-maybe' }
     /** Strict per-Session Conversation body. */
     'conversation.session': { kind: 'single'; scope: 'session' }
     /** Strict per-Session title, actions, and View navigation. */
@@ -141,10 +142,9 @@ declare module '@deepseek-ai/dsh-client-ui-slots' {
     }
     /**
      * The header's far-right corner, past the utilities' edge and into the
-     * header's own padding, for one control that must keep its place whether or
-     * not it currently shows anything. The corner reserves its width while an
-     * occupant is registered, so the utilities beside it never move; an
-     * occupant with nothing to show renders a same-size placeholder.
+     * header's own padding, for one control. The corner is laid out only while
+     * its occupant renders something; an occupant with nothing to show renders
+     * nothing, and the utilities take the header's edge.
      */
     'conversation.session.header.corner': {
       kind: 'single'
@@ -181,6 +181,8 @@ declare module '@deepseek-ai/dsh-client-ui-slots' {
     }
     /** Plan control inside the composer tool row. */
     'conversation.input.plan': { kind: 'single'; scope: 'session'; owner: InputControlOwnerProps }
+    /** Current-session permission control inside the composer tool row. */
+    'conversation.input.permission': { kind: 'single'; scope: 'session'; owner: InputControlOwnerProps }
     /** Model selector inside the composer tool row. */
     'conversation.input.model': { kind: 'single'; scope: 'session'; owner: InputControlOwnerProps }
   }
@@ -311,7 +313,6 @@ export interface ComposerBarInjected {
   retryFileUpload: ((id: DraftAttachmentId) => void) | undefined
   toggleCommandMenu: ((selection: EditSelection) => void) | undefined
   stop: (() => void) | undefined
-  command: ((line: string) => Promise<boolean>) | undefined
   hooks: {
     /**
      * Live busy-state submission preference: the delivery mode plain Enter
@@ -326,7 +327,7 @@ export interface ComposerBarInjected {
   }
 }
 
-/** Owner share of the named plan and model controls. */
+/** Owner share of the named plan, permission, and model controls. */
 export interface InputControlOwnerProps {
   /** Whether the composer currently refuses interaction. */
   locked: boolean
@@ -337,6 +338,7 @@ export type ComposerBarProps =
   PropsRuntime<'conversation.composer.bar'>
   & PropsRenderSlots<
     | 'conversation.input.attachments' | 'conversation.input.overlay'
+    | 'conversation.input.permission'
     | 'conversation.input.left' | 'conversation.input.plan'
     | 'conversation.input.right' | 'conversation.input.model'
     | 'conversation.composer.dock'
@@ -364,7 +366,7 @@ export interface HeroBrandMarkOwnerProps {
 
 /** Full props of the resident optional-Session Conversation shell. */
 export type ConversationSlotProps =
-  PropsRuntime<'conversation'>
+  PropsRuntime<'main.conversation'>
   & PropsRenderSlots<
     | 'conversation.session' | 'conversation.session.header'
     | 'conversation.composer' | 'conversation.composer.bar'

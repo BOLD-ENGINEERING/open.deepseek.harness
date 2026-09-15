@@ -55,6 +55,7 @@ import { t as tTrajectory, tZh } from './locale.client.ts'
 
 // Every session-scope fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
+const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 function TrajectoryTimeline(
   props: Omit<ComponentProps<typeof LocalizedTrajectoryTimeline>, 't'>,
@@ -224,7 +225,7 @@ function standaloneProps(
     sessionId: SID,
     useChat: bindSnapshotSelector(createSnapshotStore(EMPTY_CHAT_SNAPSHOT)),
     useSessions: emptySessions(),
-    useResource,
+    usePanelInfo, useResource,
     useSessionPendingInteraction: bindSnapshotSelector(
       createSnapshotStore<SessionPendingInteractionSnapshot>(new Map()),
     ),
@@ -351,7 +352,7 @@ function mount(fixture: Awaited<ReturnType<typeof bench>>) {
     useConversation,
     useConversationViews,
     useSessions,
-    useResource,
+    usePanelInfo, useResource,
     useSessionPendingInteraction,
     useWorkspaces,
     useProjection,
@@ -537,7 +538,7 @@ describe('tab switching in ConversationRoot', () => {
 
     fireEvent.keyDown(screen.getByRole('row', { name: /工具/ }), { key: 'Enter' })
     expect(screen.getByRole('complementary', { name: '事件详情' })).toBeTruthy()
-    expect(screen.getByText('第 1 轮 · 步骤 1')).toBeTruthy()
+    expect(screen.getByText('第 1 轮 · 第 1 步')).toBeTruthy()
     expect(screen.getByText('已完成')).toBeTruthy()
     expect(screen.getByRole('tab', { name: '结果' })).toBeTruthy()
 

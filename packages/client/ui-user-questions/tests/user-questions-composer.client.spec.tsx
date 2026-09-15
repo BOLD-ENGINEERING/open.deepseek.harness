@@ -13,6 +13,7 @@ import { zh as commonZh } from '@deepseek-ai/dsh-client-locale/src/locales/zh.ts
 
 // Every session-scope fixture carries the resource hook the resources plugin merges into GlobalStandardProps.
 const useResource = (() => ({ status: 'none' as const, value: undefined, failure: undefined, reload: () => {} })) as GlobalStandardProps['useResource']
+const usePanelInfo: GlobalStandardProps['usePanelInfo'] = selector => selector({ activePanelId: null })
 
 afterEach(cleanup)
 
@@ -114,7 +115,7 @@ const kitBase: Omit<QuestionComposerProps, 'matched' | 'useStore' | 'actions'> =
   pendingInteraction: undefined,
   useSession: selector => selector(sessionState),
   useSessions: selector => selector(sessionList),
-  useResource,
+  usePanelInfo, useResource,
   useSessionPendingInteraction: selector => selector(attentionState),
   useWorkspaces: selector => selector(workspaceState),
   useConversation: selector => selector(conversationState),
@@ -246,9 +247,9 @@ describe('QuestionComposer', () => {
     expect((screen.getByText('下一题').closest('button') as HTMLButtonElement).disabled).toBe(true)
     fireEvent.click(screen.getByRole('radio', { name: '研究潜力型' }))
     expect(screen.getByText('2 / 3')).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: '跳过本题' }))
+    fireEvent.click(screen.getByRole('button', { name: '跳过' }))
     expect(screen.getByText('3 / 3')).toBeTruthy()
-    fireEvent.click(screen.getByRole('button', { name: '跳过本题' }))
+    fireEvent.click(screen.getByRole('button', { name: '跳过' }))
 
     expect(answer).toHaveBeenCalledWith(answerBatch([
       { id: 'profile', selected: ['研究潜力型'] },
@@ -345,7 +346,7 @@ describe('QuestionComposer', () => {
 
     fireEvent.click(screen.getByRole('button', { name: '放弃整组问题' }))
     expect(await screen.findByText('第一次取消失败')).toBeTruthy()
-    expect(screen.getByRole<HTMLButtonElement>('button', { name: '跳过本题' }).disabled).toBe(false)
+    expect(screen.getByRole<HTMLButtonElement>('button', { name: '跳过' }).disabled).toBe(false)
 
     fireEvent.click(screen.getByRole('button', { name: '放弃整组问题' }))
     expect(await screen.findByText('第二次取消失败')).toBeTruthy()
@@ -386,7 +387,7 @@ describe('QuestionComposer', () => {
     const { carrier } = wait([{ id: 'detail', question: '补充你的要求' }])
     render(<QuestionComposer matched={carrier} {...kit} t={seatOver(en, commonEn)} />)
     expect(screen.getByLabelText('Dismiss all questions')).toBeTruthy()
-    expect(screen.getByRole('button', { name: 'Skip this question' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Skip' })).toBeTruthy()
     expect(screen.getByPlaceholderText('Type your answer')).toBeTruthy()
   })
 
